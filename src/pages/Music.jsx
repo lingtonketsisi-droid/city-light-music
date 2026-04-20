@@ -347,6 +347,15 @@ const MusicPage = () => {
           .mu-track-row { grid-template-columns: 24px 44px 1fr auto auto; }
           .mu-track-genre, .mu-track-streams { display: none; }
         }
+
+        @media (max-width: 640px) {
+          .mu-h1 { font-size: 1.75rem; }
+          .mu-header { flex-direction: column; align-items: flex-start; }
+          .mu-releases-grid { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+          .mu-track-row { padding: 0.5rem 0.75rem; gap: 0.75rem; }
+          .mu-track-title { font-size: 0.8rem; }
+          .mu-track-dur { display: none; }
+        }
       `}</style>
     </div>
   );

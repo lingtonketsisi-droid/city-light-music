@@ -4,7 +4,7 @@ import {
   Home, Music, Video, Mic2, LayoutDashboard, Upload, DollarSign,
   ShieldCheck, Newspaper, MessageCircle, Wallet, Scale, Search,
   Bell, ChevronRight, ChevronDown, Play, Users, TrendingUp, BarChart2, Settings,
-  Radio, Compass, Crown
+  Radio, Compass, Crown, Menu, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -32,7 +32,7 @@ const NAV_SYSTEM = [
 ];
 
 /* ─── Sidebar ────────────────────────────────────────────────── */
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
   const [creatorOpen, setCreatorOpen] = useState(false);
   const location = useLocation();
 
@@ -43,22 +43,33 @@ const Sidebar = () => {
     }
   }, [location.pathname]);
 
+  const handleLinkClick = () => {
+    if (window.innerWidth < 1024) {
+      onClose();
+    }
+  };
+
   return (
-    <aside className="clm-sidebar">
-      {/* Logo */}
-      <Link to="/" className="clm-logo">
-        <div className="clm-logo-icon">
-          <Radio size={18} color="#fff" />
-        </div>
-        <div className="clm-logo-text">
-          <span className="clm-logo-brand">CITY LIGHT</span>
-          <span className="clm-logo-sub">MUSIC</span>
-        </div>
-      </Link>
+    <aside className={`clm-sidebar ${isOpen ? 'is-open' : ''}`}>
+      <div className="clm-sidebar-header">
+        {/* Logo */}
+        <Link to="/" className="clm-logo" onClick={handleLinkClick}>
+          <div className="clm-logo-icon">
+            <Radio size={18} color="#fff" />
+          </div>
+          <div className="clm-logo-text">
+            <span className="clm-logo-brand">CITY LIGHT</span>
+            <span className="clm-logo-sub">MUSIC</span>
+          </div>
+        </Link>
+        <button className="clm-close-btn" onClick={onClose}>
+          <X size={20} />
+        </button>
+      </div>
 
       <div className="clm-sidebar-scroll">
         {/* Discover */}
-        <NavSection label="Discover" items={NAV_DISCOVER} />
+        <NavSection label="Discover" items={NAV_DISCOVER} onItemClick={handleLinkClick} />
 
         {/* Creator Hub (Collapsible) */}
         <div className="clm-nav-section mt-4">
@@ -90,6 +101,7 @@ const Sidebar = () => {
                       key={lbl}
                       to={to}
                       end={to === '/'}
+                      onClick={handleLinkClick}
                       className={({ isActive }) => `clm-nav-link clm-nav-link-sub${isActive ? ' clm-nav-active' : ''}`}
                     >
                       <Icon size={16} />
@@ -104,12 +116,12 @@ const Sidebar = () => {
 
         {/* System */}
         <div className="mt-4">
-          <NavSection label="System" items={NAV_SYSTEM} />
+          <NavSection label="System" items={NAV_SYSTEM} onItemClick={handleLinkClick} />
         </div>
       </div>
 
       {/* User profile */}
-      <Link to="/profile" className="clm-user-row">
+      <Link to="/profile" className="clm-user-row" onClick={handleLinkClick}>
         <div className="clm-user-avatar">UP</div>
         <div className="clm-user-info">
           <span className="clm-user-name">Urban Pulse</span>
@@ -121,7 +133,7 @@ const Sidebar = () => {
   );
 };
 
-const NavSection = ({ label, items }) => (
+const NavSection = ({ label, items, onItemClick }) => (
   <nav className="clm-nav-section">
     <p className="clm-nav-label">{label}</p>
     {items.map(({ to, icon: Icon, label: lbl }) => (
@@ -129,6 +141,7 @@ const NavSection = ({ label, items }) => (
         key={lbl}
         to={to}
         end={to === '/'}
+        onClick={onItemClick}
         className={({ isActive }) => `clm-nav-link${isActive ? ' clm-nav-active' : ''}`}
       >
         <Icon size={17} />
@@ -139,7 +152,7 @@ const NavSection = ({ label, items }) => (
 );
 
 /* ─── Top Bar ────────────────────────────────────────────────── */
-const TopBar = () => {
+const TopBar = ({ onToggleMenu }) => {
   const [query, setQuery] = useState('');
   const navigate = useNavigate();
 
@@ -150,25 +163,29 @@ const TopBar = () => {
 
   return (
     <header className="clm-topbar">
+      <button className="clm-menu-toggle" onClick={onToggleMenu}>
+        <Menu size={24} />
+      </button>
+      
       <form className="clm-search-form" onSubmit={onSearch}>
         <Search size={16} className="clm-search-ic" />
         <input
           type="text"
           className="clm-search-input"
-          placeholder="Search for songs, artists, or podcasts..."
+          placeholder="Search items..."
           value={query}
           onChange={e => setQuery(e.target.value)}
         />
       </form>
       <div className="clm-topbar-actions">
-        <Link to="/music" className="clm-listen-btn">
+        <Link to="/music" className="clm-listen-btn hide-mobile">
           <Play size={13} fill="currentColor" /> Web Player
         </Link>
         <button className="clm-icon-btn" aria-label="Notifications">
           <Bell size={19} />
           <span className="clm-notif-dot" />
         </button>
-        <button className="clm-icon-btn" aria-label="Settings">
+        <button className="clm-icon-btn hide-mobile" aria-label="Settings">
           <Settings size={19} />
         </button>
         <Link to="/profile" className="clm-avatar-btn">UP</Link>
@@ -178,13 +195,28 @@ const TopBar = () => {
 };
 
 /* ─── Shell ──────────────────────────────────────────────────── */
-const Shell = ({ children }) => (
-  <div className="clm-shell">
-    <Sidebar />
-    <div className="clm-main">
-      <TopBar />
-      <main className="clm-content">{children}</main>
-    </div>
+const Shell = ({ children }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  return (
+    <div className="clm-shell">
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="clm-backdrop"
+          />
+        )}
+      </AnimatePresence>
+
+      <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
+      <div className="clm-main">
+        <TopBar onToggleMenu={() => setIsMobileMenuOpen(true)} />
+        <main className="clm-content">{children}</main>
+      </div>
 
     <style>{`
       /* ══ Shell Layout ══════════════════════════════════════════ */
@@ -193,6 +225,16 @@ const Shell = ({ children }) => (
         height: 100vh;
         background: transparent;
         overflow: hidden;
+        position: relative;
+      }
+
+      .clm-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 40;
+        display: none;
       }
 
       /* ══ Sidebar ═══════════════════════════════════════════════ */
@@ -208,7 +250,20 @@ const Shell = ({ children }) => (
         flex-direction: column;
         padding: 1.25rem 1rem 1rem;
         gap: 0.25rem;
-        z-index: 20;
+        z-index: 50;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      .clm-sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+      .clm-close-btn {
+        display: none;
+        padding: 0.5rem;
+        color: var(--text-gray);
+        cursor: pointer;
       }
       .clm-sidebar-scroll {
         flex: 1;
@@ -225,7 +280,6 @@ const Shell = ({ children }) => (
         align-items: center;
         gap: 0.75rem;
         padding: 0.25rem 0.5rem;
-        margin-bottom: 0.5rem;
         text-decoration: none;
         flex-shrink: 0;
       }
@@ -335,6 +389,14 @@ const Shell = ({ children }) => (
         gap: 1.5rem;
       }
 
+      .clm-menu-toggle {
+        display: none;
+        padding: 0.5rem;
+        margin-left: -0.5rem;
+        color: var(--text-main);
+        cursor: pointer;
+      }
+
       /* Search */
       .clm-search-form {
         display: flex; align-items: center; gap: 0.75rem;
@@ -419,6 +481,59 @@ const Shell = ({ children }) => (
       .clm-content::-webkit-scrollbar-track { background: transparent; }
       .clm-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 99px; }
       .clm-content::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
+
+      /* ══ Responsive Breakpoints ═════════════════════════════════ */
+      @media (max-width: 1024px) {
+        .clm-sidebar {
+          position: fixed;
+          top: 0;
+          left: 0;
+          transform: translateX(-100%);
+          z-index: 50;
+          background: rgba(15, 15, 18, 0.95);
+        }
+        .clm-sidebar.is-open {
+          transform: translateX(0);
+        }
+        .clm-backdrop {
+          display: block;
+        }
+        .clm-close-btn {
+          display: block;
+        }
+        .clm-menu-toggle {
+          display: block;
+        }
+        .clm-content {
+          padding: 1.5rem;
+          padding-bottom: 100px;
+        }
+        .clm-topbar {
+          padding: 0 1.25rem;
+        }
+        .hide-mobile {
+          display: none;
+        }
+        .clm-search-form {
+          max-width: none;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .clm-topbar {
+          gap: 1rem;
+        }
+        .clm-search-form {
+          padding: 0.5rem 1rem;
+        }
+        .clm-search-input {
+          font-size: 0.75rem;
+        }
+        .clm-icon-btn, .clm-avatar-btn {
+          width: 36px;
+          height: 36px;
+        }
+      }
     `}</style>
   </div>
 );

@@ -79,15 +79,15 @@ const Home = () => {
         </div>
         
         {/* Content Layer */}
-        <div className="relative z-30 p-10 md:p-16 h-full flex flex-col justify-center max-w-4xl min-h-[500px]">
+        <div className="relative z-30 p-8 md:p-16 h-full flex flex-col justify-center max-w-4xl min-h-[400px] md:min-h-[500px]">
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
             <div className="text-accent-magenta font-black text-xs uppercase tracking-[0.2em] mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
               CITY LIGHT MUSIC
             </div>
-            <h1 className="text-5xl md:text-8xl font-black font-['Outfit'] text-white leading-[0.95] tracking-tight mb-5 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+            <h1 className="text-4xl sm:text-5xl md:text-8xl font-black font-['Outfit'] text-white leading-[0.95] tracking-tight mb-5 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
               Where Sound<br/>Meets Spotlight
             </h1>
-            <p className="text-lg md:text-xl text-gray-100 mb-0 max-w-2xl font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,1)] leading-relaxed">
+            <p className="text-base md:text-xl text-gray-100 mb-0 max-w-2xl font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,1)] leading-relaxed">
               Discover the energy, the visuals, and the culture shaping what’s next.
             </p>
           </motion.div>
@@ -116,7 +116,7 @@ const Home = () => {
               <motion.div 
                 key={track.id} 
                 whileHover={{ y: -8, scale: 1.02 }}
-                className="flex-shrink-0 w-[220px] snap-start group cursor-pointer"
+                className="flex-shrink-0 w-[160px] sm:w-[220px] snap-start group cursor-pointer"
                 onClick={() => playTrack(track)}
               >
                 <div className="relative aspect-square rounded-[20px] overflow-hidden mb-3 border border-white/10 shadow-lg">
@@ -166,7 +166,7 @@ const Home = () => {
               <motion.div 
                 key={video.id} 
                 whileHover={{ y: -8, scale: 1.02 }}
-                className="flex-shrink-0 w-[400px] snap-start group border border-white/10 rounded-[20px] overflow-hidden bg-black/40 backdrop-blur-sm cursor-pointer shadow-xl"
+                className="flex-shrink-0 w-[280px] sm:w-[400px] snap-start group border border-white/10 rounded-[20px] overflow-hidden bg-black/40 backdrop-blur-sm cursor-pointer shadow-xl"
               >
                 <div className="relative aspect-video bg-black flex items-center justify-center overflow-hidden">
                    {/* We use a video element without controls for preview purposes, or a simple gradient fallback */}

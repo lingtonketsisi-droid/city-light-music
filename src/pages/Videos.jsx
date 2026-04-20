@@ -133,6 +133,10 @@ const VideosPage = () => {
 
       <style>{`
         .vp-page { padding-bottom: 2rem; }
+        @media (max-width: 640px) {
+          .vp-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+          .vp-header h1 { font-size: 2rem; }
+        }
       `}</style>
     </div>
   );

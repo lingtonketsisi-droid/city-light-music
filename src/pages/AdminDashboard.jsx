@@ -1483,6 +1483,28 @@ const AdminDashboard = () => {
           color: #f87171;
         }
         .suspend-btn:hover { background: rgba(239,68,68,0.14); }
+
+        @media (max-width: 1024px) {
+          .page-admin { padding: 1.5rem; }
+          .admin-header-premium { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+          .header-actions { width: 100%; }
+          .search-pill-admin { width: 100%; max-width: none; }
+          .admin-main-tabs { overflow-x: auto; padding-bottom: 0.5rem; }
+          .admin-main-tab { white-space: nowrap; }
+          .submission-table, .collab-table { overflow-x: auto; }
+          .table-head, .submission-row, .collab-table-head, .deal-table-head, .collab-row { min-width: 900px; }
+        }
+
+        @media (max-width: 640px) {
+          .page-admin { padding: 1rem; }
+          .admin-header-premium h1 { font-size: 2rem; }
+          .stats-grid-premium { grid-template-columns: 1fr; }
+          .modal-overlay { padding: 1rem; }
+          .modal-card { padding: 1.5rem; border-radius: 16px; }
+          .modal-parties { flex-direction: column; align-items: flex-start; gap: 1rem; }
+          .modal-arrow { transform: rotate(90deg); align-self: center; }
+          .modal-detail-grid { grid-template-columns: 1fr 1fr; }
+        }
       `}</style>
     </div>
   );

@@ -223,7 +223,21 @@ const RoyaltiesPage = () => {
 
         /* Chart body */
         .ry-chart-body { display: flex; align-items: center; gap: 3rem; padding: 2rem 1.75rem; }
-        @media (max-width: 700px) { .ry-chart-body { flex-direction: column; gap: 1.5rem; } }
+        
+        @media (max-width: 1024px) {
+          .ry-h1 { font-size: 1.8rem; }
+          .ry-stat-value { font-size: 1.6rem; }
+        }
+
+        @media (max-width: 700px) { 
+          .ry-chart-body { flex-direction: column; gap: 1.5rem; } 
+          .ry-legend-item { grid-template-columns: 10px 1fr auto; }
+          .ry-legend-bar-bg { display: none; }
+          .ry-tx-row { padding: 1rem; gap: 0.75rem; }
+          .ry-tx-mid { display: none; }
+          .ry-header { flex-direction: column; align-items: flex-start; }
+          .ry-export-btn { width: 100%; justify-content: center; }
+        }
 
         /* Donut */
         .ry-donut-wrap { position: relative; width: 160px; height: 160px; flex-shrink: 0; }

@@ -125,7 +125,8 @@ const ArtistDashboard = () => {
               </h3>
             </header>
             
-            <div className="distribution-table">
+            <div className="distribution-table-outer overflow-x-auto">
+              <div className="distribution-table min-w-[700px]">
               <div className="table-head">
                 <span>RELEASE TITLE</span>
                 <span>STATUS</span>
@@ -166,6 +167,7 @@ const ArtistDashboard = () => {
                   <Link to="/upload" className="btn-primary-v3 inline-block">Create First Release</Link>
                 </div>
               )}
+            </div>
             </div>
           </section>
         </div>
@@ -209,6 +211,23 @@ const ArtistDashboard = () => {
         .btn-white-sm { background: #fff; color: var(--accent-blue); padding: 0.8rem; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; }
         .btn-primary-v3 { background: var(--accent-blue); color: #fff; padding: 0.8rem 1.5rem; border-radius: 10px; font-weight: 700; width: fit-content; }
         @media (max-width: 1400px) { .stats-grid-premium { grid-template-columns: repeat(2, 1fr); } .dashboard-grid { grid-template-columns: 1fr; } }
+        
+        @media (max-width: 1024px) {
+          .page-dashboard { padding: 1.5rem; }
+          .dashboard-header-premium { flex-direction: column; align-items: flex-start; gap: 1.5rem; margin-bottom: 2.5rem; }
+          .header-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+          .btn-primary-v2, .db-signout-btn { width: 100%; justify-content: center; padding: 0.75rem; font-size: 0.75rem; }
+          .stats-grid-premium { gap: 1rem; }
+          .stat-card-premium { padding: 1.5rem; gap: 1rem; }
+          .stat-value-premium { font-size: 1.5rem; }
+        }
+
+        @media (max-width: 640px) {
+          .stats-grid-premium { grid-template-columns: 1fr; }
+          .header-actions { grid-template-columns: 1fr; }
+          .page-dashboard { padding: 1rem; }
+        }
+
       `}</style>
     </div>
   );
