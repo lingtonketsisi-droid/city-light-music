@@ -67,38 +67,29 @@ const Home = () => {
             loop
             playsInline
             preload="auto"
-            style={{ filter: 'brightness(1.1) contrast(1.1)' }}
-            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-[10s] ease-out"
+            style={{ filter: 'brightness(1.12) contrast(1.08) saturate(1.05)' }}
+            className="absolute inset-0 w-full h-full object-cover opacity-85 group-hover:scale-105 transition-transform duration-[10s] ease-out"
           />
-          {/* Lighter Transparent Dark Overlay for better video visibility */}
-          <div className="absolute inset-0 bg-black/35 z-10" />
+          {/* Lighter Transparent Dark Overlay for maximum video visibility */}
+          <div className="absolute inset-0 bg-black/30 z-10" />
           
           {/* Subtle directional gradients for text contrast */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-transparent z-20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#09090b]/40 via-transparent to-transparent z-20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b]/80 via-transparent to-transparent z-20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#09090b]/60 via-transparent to-transparent z-20" />
         </div>
         
         {/* Content Layer */}
-        <div className="relative z-30 p-10 md:p-16 h-full flex flex-col justify-end max-w-4xl">
+        <div className="relative z-30 p-10 md:p-16 h-full flex flex-col justify-center max-w-4xl min-h-[500px]">
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-            <div className="flex items-center gap-2 text-accent-magenta font-black text-xs uppercase tracking-[0.2em] mb-4 drop-shadow-md">
-              <Sparkles size={14} /> CITY LIGHT MEDIA
+            <div className="text-accent-magenta font-black text-xs uppercase tracking-[0.2em] mb-4 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+              CITY LIGHT MUSIC
             </div>
-            <h1 className="text-5xl md:text-7xl font-black font-['Outfit'] text-white leading-[1.1] tracking-tight mb-4 drop-shadow-2xl">
-              Videos Shot by<br/>City Light Media
+            <h1 className="text-5xl md:text-8xl font-black font-['Outfit'] text-white leading-[0.95] tracking-tight mb-5 drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]">
+              Where Sound<br/>Meets Spotlight
             </h1>
-            <p className="text-lg md:text-xl text-gray-100 mb-8 max-w-2xl font-semibold drop-shadow-md">
-              City Light Music — Where Sound Meets Spotlight.
+            <p className="text-lg md:text-xl text-gray-100 mb-0 max-w-2xl font-semibold drop-shadow-[0_2px_8px_rgba(0,0,0,1)] leading-relaxed">
+              Discover the energy, the visuals, and the culture shaping what’s next.
             </p>
-            
-            <div className="flex items-center gap-4">
-              <button className="bg-white text-black hover:bg-gray-200 px-8 py-3.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 hover:scale-105 shadow-[0_0_25px_rgba(255,255,255,0.25)]">
-                <PlayCircle size={18} fill="#000" /> Watch Reel
-              </button>
-              <button className="bg-white/10 text-white border border-white/20 hover:bg-white/20 px-8 py-3.5 rounded-full font-bold text-sm transition-all backdrop-blur-md">
-                View Projects
-              </button>
-            </div>
           </motion.div>
         </div>
       </section>
