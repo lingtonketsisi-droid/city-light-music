@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import {
-  Upload, Music, CheckCircle, ArrowRight, ArrowLeft,
-  Globe, Shield, Info, Plus, X, Sparkles, AlertCircle, Loader2,
-  FileAudio, Image as ImageIcon, Check, ChevronRight, Video, FileVideo
+  Upload, Music, CheckCircle, ArrowRight, Globe, Shield, Info, Plus, 
+  X, Sparkles, AlertCircle, Loader2, FileAudio, Image as ImageIcon, 
+  Check, ChevronRight, Video, FileVideo, Users, Disc, BookOpen, AlertTriangle
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
@@ -15,6 +15,11 @@ const STEPS = [
 
 const STORAGE_BUCKET_AUDIO = 'audio-uploads';
 const STORAGE_BUCKET_VIDEO = 'video-uploads';
+
+const GENRES = [
+  'Electronic', 'Hip Hop', 'R&B', 'Pop', 'Amapiano', 
+  'Afrobeat', 'Jazz', 'Classical', 'Rock', 'Alternative', 'Latin'
+];
 
 const ProgressBar = ({ label, pct, color = 'var(--accent-blue)' }) => (
   <div className="mb-4">
@@ -37,12 +42,25 @@ const UploadRelease = () => {
   const [uploadType, setUploadType] = useState('audio'); // 'audio' or 'video'
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
-    title: '',
-    artistName: '',
+    // Shared
+    title: '', 
+    artistName: '', 
     genre: 'Electronic',
     releaseDate: new Date().toISOString().split('T')[0],
-    isExplicit: false,
+    isExplicit: false, 
     confirmedRights: false,
+    
+    // Core Release Info
+    featuredArtists: '',
+    producer: '',
+    recordLabel: '',
+    copyrightYear: new Date().getFullYear().toString(),
+    copyrightOwner: '',
+
+    // Track Info
+    versionType: '',
+    composerSongwriter: '',
+    primaryLanguage: '',
   });
 
   const [audioFile, setAudioFile] = useState(null);
@@ -67,6 +85,9 @@ const UploadRelease = () => {
       title: '', artistName: '', genre: 'Electronic',
       releaseDate: new Date().toISOString().split('T')[0],
       isExplicit: false, confirmedRights: false,
+      featuredArtists: '', producer: '', recordLabel: '',
+      copyrightYear: new Date().getFullYear().toString(), copyrightOwner: '',
+      versionType: '', composerSongwriter: '', primaryLanguage: ''
     });
     setStep(1);
   };
@@ -129,6 +150,14 @@ const UploadRelease = () => {
             title: form.title || 'Untitled Release',
             cover_url: coverUrl,
             release_date: form.releaseDate,
+            main_artist: form.artistName,
+            featured_artists: form.featuredArtists,
+            producer: form.producer,
+            record_label: form.recordLabel,
+            copyright_year: form.copyrightYear,
+            copyright_owner: form.copyrightOwner || form.artistName,
+            genre: form.genre,
+            is_explicit: form.isExplicit
           })
           .select().single();
 
@@ -142,6 +171,9 @@ const UploadRelease = () => {
             title: form.title || 'Untitled Track',
             audio_url: audioUrl,
             audio_path: audioPath,
+            version_type: form.versionType,
+            composer_songwriter: form.composerSongwriter,
+            primary_language: form.primaryLanguage
           });
 
         if (tErr) throw new Error(`Database (Track): ${tErr.message}`);
@@ -201,7 +233,7 @@ const UploadRelease = () => {
   );
 
   return (
-    <div className="fade-in max-w-4xl mx-auto py-6">
+    <div className="fade-in max-w-5xl mx-auto py-6">
       {step < 4 && (
         <div className="text-center mb-6">
           <h1 className="text-4xl font-black mb-2 tracking-tight">Global Distribution</h1>
@@ -228,7 +260,7 @@ const UploadRelease = () => {
 
       {step < 4 && renderSteps()}
 
-      <div className="glass-v2 p-8 shadow-premium rounded-[32px] overflow-hidden">
+      <div className="glass-v2 p-8 md:p-10 shadow-premium rounded-[32px] overflow-hidden">
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div
@@ -275,9 +307,9 @@ const UploadRelease = () => {
                       {coverFile ? <Check size={32} /> : <ImageIcon size={32} />}
                     </div>
                     <div className="text-center">
-                      <h3 className="font-bold text-lg">{coverFile ? 'Cover Ready' : 'Select Artwork'}</h3>
+                      <h3 className="font-bold text-lg">{coverFile ? 'Artwork Ready' : 'Select Cover Art'}</h3>
                       <p className="text-xs text-gray mt-1">
-                        {coverFile ? coverFile.name : 'JPG, PNG, or WebP'}
+                        {coverFile ? coverFile.name : 'JPG, PNG, WebP (Min 1500px)'}
                       </p>
                     </div>
                   </div>
@@ -313,7 +345,7 @@ const UploadRelease = () => {
                   onClick={() => setStep(2)}
                   className={`btn-primary gap-2 ${(uploadType === 'audio' ? (!audioFile || !coverFile) : !videoFile) && 'opacity-50 cursor-not-allowed'}`}
                 >
-                  Next Details <ArrowRight size={18} />
+                  Distribution Details <ArrowRight size={18} />
                 </button>
               </div>
             </motion.div>
@@ -325,73 +357,100 @@ const UploadRelease = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
+              className="space-y-10"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2 col-span-1 md:col-span-2 lg:col-span-1">
-                  <label className="text-xs font-black uppercase tracking-widest text-gray px-1">
-                    {uploadType === 'audio' ? 'Track Title' : 'Video Title'}
-                  </label>
-                  <input 
-                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent-blue/30 focus:border-accent-blue transition-all text-white"
-                    placeholder="Enter title..."
-                    value={form.title}
-                    onChange={e => set({ title: e.target.value })}
-                  />
-                </div>
+              {uploadType === 'audio' ? (
+                <>
+                  <div className="space-y-8">
+                    {/* CORE RELEASE INFO */}
+                    <div>
+                      <h3 className="font-black text-xl mb-4 flex items-center gap-2"><Disc size={20} className="text-accent-blue" /> Core Release Info</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="space-y-1 md:col-span-2">
+                          <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Release Title</label>
+                          <input className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue" placeholder="e.g. Midnight Symphony" value={form.title} onChange={e => set({ title: e.target.value })} />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Main Artist</label>
+                          <input className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue" placeholder="e.g. Urban Pulse" value={form.artistName} onChange={e => set({ artistName: e.target.value })} />
+                        </div>
+                         <div className="space-y-1">
+                          <label className="text-xs font-bold uppercase tracking-widest text-gray/50 px-1">Featured Artists <span className="lowercase font-medium">(Optional)</span></label>
+                          <input className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue" placeholder="e.g. DJ Spark, Vibe Check" value={form.featuredArtists} onChange={e => set({ featuredArtists: e.target.value })} />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Primary Genre</label>
+                          <select className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue appearance-none" value={form.genre} onChange={e => set({ genre: e.target.value })}>
+                            {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+                          </select>
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Release Date</label>
+                          <input type="date" className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue" value={form.releaseDate} onChange={e => set({ releaseDate: e.target.value })} />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Record Label <span className="lowercase font-medium text-gray/50">(Optional)</span></label>
+                          <input className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue" placeholder="Leave blank if Independent" value={form.recordLabel} onChange={e => set({ recordLabel: e.target.value })} />
+                        </div>
+                        <div className="flex items-center gap-3 bg-black/20 border border-white/5 p-4 rounded-xl self-end h-[50px]">
+                          <input type="checkbox" id="explicit" className="w-5 h-5 rounded accent-accent-blue" checked={form.isExplicit} onChange={e => set({ isExplicit: e.target.checked })} />
+                          <label htmlFor="explicit" className="font-bold text-sm cursor-pointer text-gray-200">Explicit Lyrics Flag</label>
+                        </div>
+                      </div>
+                    </div>
 
-                {uploadType === 'audio' ? (
-                  <>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Genre</label>
-                      <select 
-                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent-blue/30 focus:border-accent-blue transition-all appearance-none text-white"
-                        value={form.genre}
-                        onChange={e => set({ genre: e.target.value })}
-                      >
-                        {['Electronic', 'Hip Hop', 'R&B', 'Pop', 'Amapiano', 'Afrobeat', 'Jazz', 'Classical'].map(g => (
-                          <option key={g} value={g}>{g}</option>
-                        ))}
-                      </select>
+                    <div className="h-px bg-white/10 w-full" />
+
+                    {/* TRACK SPECIFICS & COPYRIGHT */}
+                    <div>
+                      <h3 className="font-black text-xl mb-4 flex items-center gap-2"><BookOpen size={20} className="text-accent-blue" /> Metadata & Ownership</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                        <div className="space-y-1 md:col-span-1">
+                          <label className="text-xs font-bold uppercase tracking-widest text-gray/50 px-1">Version <span className="lowercase font-medium">(Optional)</span></label>
+                          <input className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue" placeholder="e.g. Radio Edit" value={form.versionType} onChange={e => set({ versionType: e.target.value })} />
+                        </div>
+                        <div className="space-y-1 md:col-span-1">
+                          <label className="text-xs font-bold uppercase tracking-widest text-gray/50 px-1">Songwriter <span className="lowercase font-medium">(Optional)</span></label>
+                          <input className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue" placeholder="Jane Doe" value={form.composerSongwriter} onChange={e => set({ composerSongwriter: e.target.value })} />
+                        </div>
+                        <div className="space-y-1 md:col-span-1">
+                          <label className="text-xs font-bold uppercase tracking-widest text-gray/50 px-1">Language <span className="lowercase font-medium">(Optional)</span></label>
+                          <input className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue" placeholder="e.g. English" value={form.primaryLanguage} onChange={e => set({ primaryLanguage: e.target.value })} />
+                        </div>
+
+                        <div className="space-y-1 md:col-span-2">
+                          <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Copyright Owner (℗ & ©)</label>
+                          <input className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue" placeholder="Owner Name (Defaults to Artist)" value={form.copyrightOwner} onChange={e => set({ copyrightOwner: e.target.value })} />
+                        </div>
+                        <div className="space-y-1 md:col-span-1">
+                          <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Copyright Year</label>
+                          <input className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white focus:border-accent-blue" placeholder="2024" value={form.copyrightYear} onChange={e => set({ copyrightYear: e.target.value })} />
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Release Date</label>
-                      <input 
-                        type="date"
-                        className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent-blue/30 focus:border-accent-blue transition-all text-white"
-                        value={form.releaseDate}
-                        onChange={e => set({ releaseDate: e.target.value })}
-                      />
-                    </div>
-                    <div className="flex items-center gap-3 bg-black/20 border border-white/5 p-4 rounded-xl self-end h-[58px]">
-                      <input 
-                        type="checkbox" id="explicit" className="w-5 h-5 rounded accent-accent-blue"
-                        checked={form.isExplicit} onChange={e => set({ isExplicit: e.target.checked })}
-                      />
-                      <label htmlFor="explicit" className="font-bold text-sm cursor-pointer">Explicit Content</label>
-                    </div>
-                  </>
-                ) : (
-                  <div className="space-y-2">
-                    <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Artist Name</label>
-                    <input 
-                      className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent-magenta/30 focus:border-accent-magenta transition-all text-white"
-                      placeholder="Who performed this video?"
-                      value={form.artistName}
-                      onChange={e => set({ artistName: e.target.value })}
-                    />
                   </div>
-                )}
-              </div>
+                </>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2 col-span-1 md:col-span-2">
+                    <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Video Title</label>
+                    <input className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent-magenta/30 focus:border-accent-magenta transition-all text-white" placeholder="Enter title..." value={form.title} onChange={e => set({ title: e.target.value })} />
+                  </div>
+                  <div className="space-y-2 col-span-1 md:col-span-2">
+                    <label className="text-xs font-black uppercase tracking-widest text-gray px-1">Artist Name</label>
+                    <input className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent-magenta/30 focus:border-accent-magenta transition-all text-white" placeholder="Who performed this video?" value={form.artistName} onChange={e => set({ artistName: e.target.value })} />
+                  </div>
+                </div>
+              )}
 
               <div className="flex justify-between pt-6 border-top border-light">
                 <button onClick={() => setStep(1)} className="text-gray font-bold px-6 hover:text-accent-blue transition-colors">
-                  Back
+                  Back to Files
                 </button>
                 <button 
-                  disabled={!form.title || (uploadType === 'video' && !form.artistName)}
+                  disabled={!form.title || !form.artistName}
                   onClick={() => setStep(3)}
-                  className={`btn-primary gap-2 ${(!form.title || (uploadType === 'video' && !form.artistName)) && 'opacity-50 cursor-not-allowed'}`}
+                  className={`btn-primary gap-2 ${(!form.title || !form.artistName) && 'opacity-50 cursor-not-allowed'}`}
                 >
                   Final Review <ArrowRight size={18} />
                 </button>
@@ -412,7 +471,7 @@ const UploadRelease = () => {
                   <div className="text-center space-y-2">
                     <Loader2 className="mx-auto animate-spin text-accent-blue mb-4" size={48} />
                     <h2 className="text-2xl font-black">Distributing Release...</h2>
-                    <p className="text-gray">Preparing files for worldwide distribution</p>
+                    <p className="text-gray">Preparing files and metadata for the network</p>
                   </div>
                   <div className="max-w-md mx-auto">
                     {uploadType === 'audio' ? (
@@ -439,40 +498,34 @@ const UploadRelease = () => {
                       </div>
                     )}
                     <div className="flex flex-col justify-center">
-                      <h2 className="text-3xl font-black mb-1">{form.title}</h2>
+                      <h2 className="text-3xl font-black mb-1">{form.title} {form.versionType && <span className="text-sm text-gray font-medium">({form.versionType})</span>}</h2>
                       {uploadType === 'audio' ? (
                         <>
-                          <p className="text-accent-blue font-bold uppercase tracking-widest text-xs flex items-center gap-2">
-                            {form.genre} <div className="w-1 h-1 rounded-full bg-accent-blue/30" /> {form.releaseDate}
+                          <p className="text-accent-blue font-bold uppercase tracking-widest text-xs flex items-center gap-2 mb-2">
+                            {form.artistName} <div className="w-1 h-1 rounded-full bg-accent-blue/30" /> {form.genre}
                           </p>
-                          {audioFile && (
-                            <div className="mt-4 flex items-center gap-2 text-gray text-sm bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 self-start">
-                              <Music size={14} /> {audioFile.name}
-                            </div>
-                          )}
+                          <div className="text-xs text-gray space-y-0.5">
+                             <p>℗ {form.copyrightYear} {form.copyrightOwner || form.artistName}</p>
+                             <p>{form.isExplicit ? 'Explicit Content' : 'Clean Version'}</p>
+                          </div>
                         </>
                       ) : (
                         <>
                           <p className="text-accent-magenta font-bold uppercase tracking-widest text-xs flex items-center gap-2">
                             MUSIC VIDEO <div className="w-1 h-1 rounded-full bg-accent-magenta/30" /> {form.artistName}
                           </p>
-                          {videoFile && (
-                            <div className="mt-4 flex items-center gap-2 text-gray text-sm bg-white/5 px-3 py-1.5 rounded-lg border border-white/10 self-start">
-                              <FileVideo size={14} /> {videoFile.name}
-                            </div>
-                          )}
                         </>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-start gap-3 p-4 bg-orange-500/10 rounded-xl border border-orange-500/20">
+                  <div className="flex items-start gap-4 p-5 bg-orange-500/10 rounded-2xl border border-orange-500/20">
                     <input 
                       type="checkbox" id="rights" className="mt-1 w-5 h-5 rounded accent-orange-500"
                       checked={form.confirmedRights} onChange={e => set({ confirmedRights: e.target.checked })}
                     />
-                    <label htmlFor="rights" className="text-sm font-medium text-orange-200 cursor-pointer">
-                      I confirm that I own 100% of the rights to this {uploadType === 'audio' ? 'audio recording and artwork' : 'video footage'}, and have permission to distribute it via City Light Music.
+                    <label htmlFor="rights" className="text-sm font-medium text-orange-200 cursor-pointer pt-0.5">
+                      I confirm that I own 100% of the masters, composition rights, and publishing for this {uploadType === 'audio' ? 'audio recording' : 'video footage'}, and I grant City Light Music the right to distribute and monetize this content globally.
                     </label>
                   </div>
 
@@ -484,11 +537,11 @@ const UploadRelease = () => {
 
                   <div className="flex justify-between pt-6 border-top border-light">
                     <button onClick={() => setStep(2)} className="text-gray font-bold px-6 hover:text-accent-blue transition-colors">
-                      Back
+                      Back to Editor
                     </button>
                     <button 
-                      onClick={handleSubmit}
-                      className={`btn-primary gap-2 bg-gradient-to-r ${uploadType === 'audio' ? 'from-accent-blue to-accent-blue/90' : 'from-accent-magenta to-accent-magenta/90'}`}
+                      onClick={handleSubmit} disabled={!form.confirmedRights}
+                      className={`btn-primary gap-2 bg-gradient-to-r ${uploadType === 'audio' ? 'from-accent-blue to-accent-blue/90' : 'from-accent-magenta to-accent-magenta/90'} ${!form.confirmedRights && 'opacity-50 grayscale cursor-not-allowed'}`}
                     >
                       Publish Release <Sparkles size={18} />
                     </button>
@@ -505,14 +558,16 @@ const UploadRelease = () => {
               animate={{ opacity: 1, scale: 1 }}
               className="py-12 text-center space-y-6"
             >
-              <div className="w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto shadow-xl shadow-green-200">
+              <div className="w-24 h-24 bg-green-500 text-white rounded-full flex items-center justify-center mx-auto shadow-[0_0_50px_rgba(34,197,94,0.3)]">
                 <Check size={48} />
               </div>
               <div className="space-y-2">
-                <h2 className="text-4xl font-black tracking-tight">Success!</h2>
-                <p className="text-gray text-lg">Your {uploadType} release "{form.title}" is now uploaded to the network.</p>
+                <h2 className="text-4xl font-black tracking-tight">Distribution Live!</h2>
+                <p className="text-gray text-lg">Your release "{form.title}" has been successfully ingested.</p>
               </div>
-              <p className="text-sm text-gray font-medium">It may take a few minutes for the heavy assets to be globally accessible.</p>
+              <p className="text-sm text-gray font-medium p-4 bg-white/5 rounded-xl border border-white/5 max-w-sm mx-auto">
+                 Our system is currently processing the metadata and binary files. It will automatically propagate to the network shortly.
+              </p>
               <div className="pt-6">
                 <button onClick={resetForm} className="btn-primary">
                   Upload Another Release
