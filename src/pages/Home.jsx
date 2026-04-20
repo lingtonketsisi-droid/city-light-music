@@ -57,22 +57,28 @@ const Home = () => {
   return (
     <div className="page-home fade-in">
       {/* ── 1. CINEMATIC VIDEO HERO ─────────────────────────────────── */}
-      <section className="hm-hero relative mb-12 rounded-[32px] overflow-hidden border border-white/10 group">
-        <div className="absolute inset-0 bg-black">
+      <section className="hm-hero relative mb-12 rounded-[32px] overflow-hidden border border-white/10 group bg-[#09090b]">
+        {/* Video Background Layer */}
+        <div className="absolute inset-0 z-0">
           <video 
-            src="https://dsxwsfdovfzgvbngfsvs.supabase.co/storage/v1/object/public/videos/Nasty%20C%27s%20Pass%20The%20Aux.mp4"
+            src="https://dsxwsfdovfzgvbngfsvs.supabase.co/storage/v1/object/public/videos/nasty-c-pass-the-aux.mp4"
             autoPlay
             muted
             loop
             playsInline
-            className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[10s] ease-out"
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-[10s] ease-out"
           />
-          {/* Enhanced gradient overlays for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/60 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#09090b] via-[#09090b]/80 to-transparent" />
+          {/* Transparent Dark Overlay - adjusted for better video visibility */}
+          <div className="absolute inset-0 bg-black/45 z-10" />
+          
+          {/* Subtle directional gradients for text contrast without hiding the video */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-transparent to-transparent z-20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#09090b]/60 via-transparent to-transparent z-20" />
         </div>
         
-        <div className="relative z-10 p-10 md:p-16 h-full flex flex-col justify-end max-w-3xl">
+        {/* Content Layer */}
+        <div className="relative z-30 p-10 md:p-16 h-full flex flex-col justify-end max-w-3xl min-screen-h-[500px]">
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
             <div className="flex items-center gap-2 text-accent-magenta font-black text-xs uppercase tracking-[0.2em] mb-4 drop-shadow-md">
               <Sparkles size={14} /> CITY LIGHT MEDIA
@@ -80,12 +86,12 @@ const Home = () => {
             <h1 className="text-5xl md:text-7xl font-black font-['Outfit'] text-white leading-[1.1] tracking-tight mb-4 drop-shadow-2xl">
               Videos Shot by<br/>City Light Media
             </h1>
-            <p className="text-lg text-gray-300 mb-8 max-w-xl font-medium drop-shadow-md">
+            <p className="text-lg text-gray-200 mb-8 max-w-xl font-medium drop-shadow-md">
               Capturing energy. Telling stories. Frame by frame.
             </p>
             
             <div className="flex items-center gap-4">
-              <button className="bg-white text-black hover:bg-gray-200 px-8 py-3.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.2)]">
+              <button className="bg-white text-black hover:bg-gray-200 px-8 py-3.5 rounded-full font-bold text-sm transition-all flex items-center gap-2 hover:scale-105 shadow-[0_0_25px_rgba(255,255,255,0.25)]">
                 <PlayCircle size={18} fill="#000" /> Watch Reel
               </button>
               <button className="bg-white/10 text-white border border-white/20 hover:bg-white/20 px-8 py-3.5 rounded-full font-bold text-sm transition-all backdrop-blur-md">
