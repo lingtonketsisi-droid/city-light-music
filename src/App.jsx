@@ -21,7 +21,9 @@ import NewsPage      from './pages/News';
 import MessagesPage  from './pages/Messages';
 import Wallet        from './pages/Wallet';
 import Legal         from './pages/Legal';
-import AuthPage      from './pages/Auth';
+import SearchPage     from './pages/Search';
+import AuthPage       from './pages/Auth';
+import PlaylistsPage  from './pages/Playlists';
 
 const ContentUpload = () => (
   <div className="p-10 fade-in text-center">
@@ -58,11 +60,15 @@ const App = () => {
                 <Routes location={location} key={location.pathname}>
                   <Route path="/"               element={<Home />} />
                   <Route path="/music"          element={<MusicPage />} />
+                  <Route path="/search"         element={<SearchPage />} />
                   <Route path="/videos"         element={<VideosPage />} />
                   <Route path="/podcasts"       element={<PodcastsPage />} />
+                  <Route path="/playlists"      element={<PlaylistsPage />} />
+                  <Route path="/playlist/:id"   element={<PlaylistsPage />} />
                   <Route path="/news"           element={<NewsPage />} />
                   <Route path="/legal"          element={<Legal />} />
                   <Route path="/profile"        element={<ArtistProfile />} />
+                  <Route path="/profile/:id"    element={<ArtistProfile />} />
                   <Route path="/release/:type/:id" element={<ReleaseDetail />} />
 
                   {/* ── Protected routes — require auth ── */}

@@ -8,7 +8,8 @@ import ArtistCard from '../components/ui/ArtistCard';
 import { usePlayer } from '../context/PlayerContext';
 import { supabase } from '../lib/supabase';
 
-const GENRES = ['All', 'Electronic', 'Hip Hop', 'R&B', 'Pop', 'Amapiano', 'Afrobeat', 'Jazz', 'Classical'];
+import { GENRES } from '../utils/genres';
+
 const SORTS  = [
   { id: 'new',      icon: Clock,      label: 'New Releases' },
   { id: 'trending', icon: Flame,      label: 'Trending'      },
@@ -79,8 +80,18 @@ const MusicPage = () => {
           )
         `);
 
+      // Genre filtering
+      if (genre !== 'All') {
+        q = q.eq('genre', genre);
+      }
+
+      // Sorting
       if (sort === 'new') {
         q = q.order('created_at', { ascending: false });
+      } else if (sort === 'trending') {
+        q = q.order('created_at', { ascending: false }); // Placeholder for trending logic
+      } else if (sort === 'top') {
+        q = q.order('created_at', { ascending: false }); // Placeholder for top rated
       }
 
       const { data, error } = await q;
@@ -101,12 +112,7 @@ const MusicPage = () => {
         streams: '0'
       }));
 
-      // Client-side genre filtering for now
-      const filtered = genre === 'All' 
-        ? formatted 
-        : formatted.filter(t => t.genre === genre);
-
-      setTracks(filtered);
+      setTracks(formatted);
     } catch (err) {
       console.error('Error fetching tracks:', err);
     } finally {
@@ -156,10 +162,13 @@ const MusicPage = () => {
 
       {/* ── Genre pills ─────────────────────────────────────── */}
       <div className="mu-genres">
+        <button
+          className={`mu-genre-pill ${genre === 'All' ? 'active' : ''}`}
+          onClick={() => setGenre('All')}>All</button>
         {GENRES.map(g => (
-          <button key={g}
-            className={`mu-genre-pill ${genre === g ? 'active' : ''}`}
-            onClick={() => setGenre(g)}>{g}</button>
+          <button key={g.slug}
+            className={`mu-genre-pill ${genre === g.name ? 'active' : ''}`}
+            onClick={() => setGenre(g.name)}>{g.name}</button>
         ))}
       </div>
 

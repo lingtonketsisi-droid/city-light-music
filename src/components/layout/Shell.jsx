@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import {
   Home, Music, Video, Mic2, LayoutDashboard, Upload, DollarSign,
   ShieldCheck, Newspaper, MessageCircle, Wallet, Scale, Search,
   Bell, ChevronRight, ChevronDown, Play, Users, TrendingUp, BarChart2, Settings,
-  Radio, Compass, Crown, Menu, X
+  Radio, Compass, Crown, Menu, X, LogOut, ListMusic
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -12,6 +13,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const NAV_DISCOVER = [
   { to: '/',         icon: Compass,    label: 'Browse'      },
   { to: '/music',    icon: Music,      label: 'Music'       },
+  { to: '/playlists',icon: ListMusic,  label: 'Collections' },
   { to: '/videos',   icon: Video,      label: 'Music Videos'},
   { to: '/podcasts', icon: Mic2,       label: 'Podcasts'    },
   { to: '/news',     icon: Newspaper,  label: 'Editorial'   },
@@ -33,8 +35,20 @@ const NAV_SYSTEM = [
 
 /* ─── Sidebar ────────────────────────────────────────────────── */
 const Sidebar = ({ isOpen, onClose }) => {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
   const [creatorOpen, setCreatorOpen] = useState(false);
   const location = useLocation();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/auth');
+      onClose();
+    } catch (err) {
+      console.error('Logout error:', err);
+    }
+  };
 
   // If we navigate to a creator route directly, expand it automatically
   useEffect(() => {
@@ -118,17 +132,42 @@ const Sidebar = ({ isOpen, onClose }) => {
         <div className="mt-4">
           <NavSection label="System" items={NAV_SYSTEM} onItemClick={handleLinkClick} />
         </div>
+
+        {/* Logout (Visible when logged in) */}
+        {user && (
+          <div className="mt-8 pt-4 border-t border-white/5">
+             <button onClick={handleLogout} className="clm-nav-link w-full text-red-400 hover:text-red-300 hover:bg-red-500/10">
+               <LogOut size={17} />
+               <span>Log Out</span>
+             </button>
+          </div>
+        )}
       </div>
 
       {/* User profile */}
-      <Link to="/profile" className="clm-user-row" onClick={handleLinkClick}>
-        <div className="clm-user-avatar">UP</div>
-        <div className="clm-user-info">
-          <span className="clm-user-name">Urban Pulse</span>
-          <span className="clm-user-plan">Pro Member</span>
-        </div>
-        <ChevronRight size={14} className="clm-user-chevron" />
-      </Link>
+      {user ? (
+        <Link to="/profile" className="clm-user-row" onClick={handleLinkClick}>
+          <div className="clm-user-avatar">
+            {user.email?.substring(0, 2).toUpperCase() || '??'}
+          </div>
+          <div className="clm-user-info">
+            <span className="clm-user-name text-white truncate max-w-[120px] inline-block">
+              {user.user_metadata?.display_name || user.email?.split('@')[0] || 'My Artist Profile'}
+            </span>
+            <span className="clm-user-plan">Pro Member</span>
+          </div>
+          <ChevronRight size={14} className="clm-user-chevron" />
+        </Link>
+      ) : (
+        <Link to="/auth" className="clm-user-row" onClick={handleLinkClick}>
+          <div className="clm-user-avatar bg-white/10">?</div>
+          <div className="clm-user-info">
+            <span className="clm-user-name">Guest User</span>
+            <span className="clm-user-plan">Sign in to publish</span>
+          </div>
+          <ChevronRight size={14} className="clm-user-chevron" />
+        </Link>
+      )}
     </aside>
   );
 };
@@ -158,7 +197,7 @@ const TopBar = ({ onToggleMenu }) => {
 
   const onSearch = e => {
     e.preventDefault();
-    if (query.trim()) navigate('/music');
+    if (query.trim()) navigate(`/search?q=${encodeURIComponent(query.trim())}`);
   };
 
   return (

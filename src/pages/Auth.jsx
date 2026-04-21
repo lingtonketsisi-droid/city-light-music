@@ -10,13 +10,24 @@ const AuthPage = () => {
 
   const [mode, setMode]       = useState('login');   // 'login' | 'signup'
   const [email, setEmail]     = useState('');
+  const [username, setUsername] = useState('');
+  const [artistName, setArtistName] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPw, setShowPw]   = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState(null);
   const [success, setSuccess] = useState(null);
 
-  const reset = () => { setError(null); setSuccess(null); };
+  const reset = () => { 
+    setError(null); 
+    setSuccess(null);
+    setEmail('');
+    setPassword('');
+    setConfirmPassword('');
+    setUsername('');
+    setArtistName('');
+  };
 
   const handleSubmit = async e => {
     e.preventDefault();
@@ -24,7 +35,17 @@ const AuthPage = () => {
     reset();
 
     if (mode === 'signup') {
-      const { error } = await signUp(email, password);
+      if (password !== confirmPassword) {
+        setError('Passwords do not match');
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await signUp(email, password, {
+        username,
+        display_name: artistName
+      });
+
       if (error) {
         setError(error.message);
       } else {
@@ -96,6 +117,42 @@ const AuthPage = () => {
 
               <form className="auth-form" onSubmit={handleSubmit}>
 
+                {mode === 'signup' && (
+                  <>
+                    {/* Username */}
+                    <div className="auth-field">
+                      <label className="auth-label">Username</label>
+                      <div className="auth-input-wrap">
+                        <Mail size={16} className="auth-input-icon" />
+                        <input
+                          className="auth-input"
+                          type="text"
+                          placeholder="urban_vibe"
+                          value={username}
+                          onChange={e => setUsername(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    {/* Artist Name */}
+                    <div className="auth-field">
+                      <label className="auth-label">Artist/Stage Name</label>
+                      <div className="auth-input-wrap">
+                        <Music size={16} className="auth-input-icon" />
+                        <input
+                          className="auth-input"
+                          type="text"
+                          placeholder="Urban Pulse"
+                          value={artistName}
+                          onChange={e => setArtistName(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
                 {/* Email */}
                 <div className="auth-field">
                   <label className="auth-label">Email address</label>
@@ -132,6 +189,25 @@ const AuthPage = () => {
                     </button>
                   </div>
                 </div>
+
+                {mode === 'signup' && (
+                  /* Confirm Password */
+                  <div className="auth-field">
+                    <label className="auth-label">Confirm Password</label>
+                    <div className="auth-input-wrap">
+                      <Lock size={16} className="auth-input-icon" />
+                      <input
+                        className="auth-input"
+                        type={showPw ? 'text' : 'password'}
+                        placeholder="••••••••"
+                        value={confirmPassword}
+                        onChange={e => setConfirmPassword(e.target.value)}
+                        required
+                        autoComplete="new-password"
+                      />
+                    </div>
+                  </div>
+                )}
 
                 {/* Error */}
                 {error && (
@@ -191,8 +267,8 @@ const AuthPage = () => {
         .auth-blob {
           position: absolute;
           border-radius: 50%;
-          filter: blur(80px);
-          opacity: 0.12;
+          filter: blur(100px);
+          opacity: 0.15;
           pointer-events: none;
         }
         .auth-blob-1 {
@@ -202,7 +278,7 @@ const AuthPage = () => {
         }
         .auth-blob-2 {
           width: 400px; height: 400px;
-          background: #a78bfa;
+          background: var(--accent-magenta);
           bottom: -80px; right: -60px;
         }
 
@@ -229,7 +305,7 @@ const AuthPage = () => {
           background: var(--accent-blue);
           border-radius: 12px;
           display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 6px 20px rgba(22,119,255,0.3);
+          box-shadow: 0 6px 20px rgba(0, 112, 243, 0.4);
         }
         .auth-logo-brand {
           font-family: 'Outfit', sans-serif;
@@ -246,28 +322,30 @@ const AuthPage = () => {
           color: var(--text-muted);
         }
 
-        /* Card */
+        /* Card - Switched to Premium Dark */
         .auth-card {
           width: 100%;
-          background: #fff;
-          border-radius: 24px;
-          border: 1px solid rgba(15,23,42,0.06);
-          box-shadow: 0 8px 40px rgba(15,23,42,0.1);
+          background: var(--bg-panel);
+          border-radius: 28px;
+          border: 1px solid var(--border-light);
+          box-shadow: var(--shadow-premium);
           padding: 2.5rem;
+          backdrop-filter: blur(20px);
         }
 
         /* Tabs */
         .auth-tabs {
           display: flex;
-          background: var(--bg-elevated);
-          border-radius: 12px;
-          padding: 0.3rem;
-          margin-bottom: 2rem;
+          background: rgba(0, 0, 0, 0.2);
+          border-radius: 14px;
+          padding: 0.35rem;
+          margin-bottom: 2.5rem;
+          border: 1px solid var(--border-subtle);
         }
         .auth-tab {
           flex: 1;
-          padding: 0.55rem;
-          border-radius: 9px;
+          padding: 0.65rem;
+          border-radius: 10px;
           font-size: 0.85rem;
           font-weight: 700;
           color: var(--text-dim);
@@ -277,13 +355,14 @@ const AuthPage = () => {
           background: transparent;
         }
         .auth-tab.active {
-          background: #fff;
-          color: var(--accent-blue);
-          box-shadow: 0 2px 8px rgba(15,23,42,0.08);
+          background: var(--bg-elevated);
+          color: #fff;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+          border: 1px solid var(--border-light);
         }
 
         .auth-heading {
-          font-size: 1.5rem;
+          font-size: 1.75rem;
           font-weight: 900;
           color: var(--text-main);
           font-family: 'Outfit', sans-serif;
@@ -291,48 +370,68 @@ const AuthPage = () => {
           margin-bottom: 0.3rem;
         }
         .auth-subheading {
-          font-size: 0.875rem;
+          font-size: 0.9rem;
           color: var(--text-gray);
-          margin-bottom: 2rem;
+          margin-bottom: 2.5rem;
         }
 
         /* Form */
-        .auth-form { display: flex; flex-direction: column; gap: 1rem; }
-        .auth-field { display: flex; flex-direction: column; gap: 0.4rem; }
-        .auth-label { font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+        .auth-form { display: flex; flex-direction: column; gap: 1.25rem; }
+        .auth-field { display: flex; flex-direction: column; gap: 0.5rem; }
+        .auth-label { 
+          font-size: 0.75rem; 
+          font-weight: 800; 
+          color: var(--text-muted); 
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          padding-left: 0.25rem;
+        }
 
         .auth-input-wrap {
           display: flex;
           align-items: center;
-          background: var(--bg-city);
-          border: 1.5px solid rgba(15,23,42,0.1);
-          border-radius: 12px;
-          padding: 0 1rem;
-          transition: border-color 0.2s ease, background 0.2s ease;
+          background: rgba(0, 0, 0, 0.2);
+          border: 1.5px solid var(--border-light);
+          border-radius: 14px;
+          padding: 0 1.1rem;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
         .auth-input-wrap:focus-within {
-          border-color: rgba(22,119,255,0.35);
-          background: #fff;
-          box-shadow: 0 0 0 3px rgba(22,119,255,0.06);
+          border-color: var(--accent-blue);
+          background: rgba(0, 0, 0, 0.3);
+          box-shadow: 0 0 0 4px rgba(0, 112, 243, 0.15);
         }
-        .auth-input-icon { color: var(--text-muted); flex-shrink: 0; }
+        .auth-input-icon { color: var(--text-dim); flex-shrink: 0; }
         .auth-input {
           flex: 1;
           border: none;
           outline: none;
           background: transparent;
-          padding: 0.75rem 0.6rem;
-          font-size: 0.875rem;
-          color: var(--text-main);
+          padding: 0.9rem 0.75rem;
+          font-size: 0.95rem;
+          color: #FFFFFF !important;  /* Force white text */
           font-family: inherit;
+          caret-color: var(--accent-blue);
         }
-        .auth-input::placeholder { color: var(--text-muted); }
+        .auth-input::placeholder { color: var(--text-muted); transition: opacity 0.2s; }
+        .auth-input:focus::placeholder { opacity: 0.5; }
+
+        /* Chrome Autofill fix */
+        .auth-input:-webkit-autofill,
+        .auth-input:-webkit-autofill:hover, 
+        .auth-input:-webkit-autofill:focus {
+          -webkit-text-fill-color: #FFFFFF !important;
+          -webkit-box-shadow: 0 0 0px 1000px #000000 inset !important;
+          transition: background-color 5000s ease-in-out 0s;
+          border-radius: inherit;
+        }
+
         .auth-pw-toggle {
-          color: var(--text-muted);
+          color: var(--text-dim);
           background: none;
           border: none;
           cursor: pointer;
-          padding: 0.25rem;
+          padding: 0.4rem;
           display: flex;
           align-items: center;
           transition: color 0.15s ease;
@@ -343,62 +442,74 @@ const AuthPage = () => {
         .auth-error, .auth-success {
           display: flex;
           align-items: flex-start;
-          gap: 0.5rem;
-          padding: 0.75rem 1rem;
-          border-radius: 10px;
-          font-size: 0.82rem;
+          gap: 0.6rem;
+          padding: 0.85rem 1.1rem;
+          border-radius: 12px;
+          font-size: 0.85rem;
+          font-weight: 600;
           line-height: 1.4;
         }
-        .auth-error   { background: rgba(239,68,68,0.07);  color: #dc2626; border: 1px solid rgba(239,68,68,0.15); }
-        .auth-success { background: rgba(34,197,94,0.07);  color: #16a34a; border: 1px solid rgba(34,197,94,0.15); }
+        .auth-error   { background: rgba(239,68,68,0.08);  color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+        .auth-success { background: rgba(34,197,94,0.08);  color: #4ade80; border: 1px solid rgba(34,197,94,0.2); }
 
         /* Submit */
         .auth-submit {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 0.5rem;
+          gap: 0.6rem;
           width: 100%;
-          padding: 0.85rem;
+          padding: 1rem;
           background: var(--accent-blue);
           color: #fff;
           border: none;
-          border-radius: 12px;
-          font-size: 0.95rem;
-          font-weight: 700;
+          border-radius: 14px;
+          font-size: 1rem;
+          font-weight: 800;
           cursor: pointer;
-          transition: all 0.15s ease;
-          box-shadow: 0 4px 14px rgba(22,119,255,0.25);
-          margin-top: 0.5rem;
+          transition: all 0.2s ease;
+          box-shadow: 0 8px 20px rgba(0, 112, 243, 0.3);
+          margin-top: 0.75rem;
+          letter-spacing: 0.01em;
         }
-        .auth-submit:hover:not(:disabled) { background: #0060d0; transform: translateY(-1px); }
-        .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .auth-submit:hover:not(:disabled) { 
+          background: #0060d0; 
+          transform: translateY(-2px);
+          box-shadow: 0 12px 28px rgba(0, 112, 243, 0.4);
+        }
+        .auth-submit:active:not(:disabled) { transform: translateY(0); }
+        .auth-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
         .auth-footer-note {
-          margin-top: 1.25rem;
+          margin-top: 1.75rem;
           text-align: center;
-          font-size: 0.82rem;
+          font-size: 0.85rem;
           color: var(--text-muted);
         }
         .auth-switch-link {
           color: var(--accent-blue);
-          font-weight: 700;
+          font-weight: 800;
           background: none;
           border: none;
           cursor: pointer;
           padding: 0;
+          margin-left: 0.25rem;
         }
-        .auth-switch-link:hover { text-decoration: underline; }
+        .auth-switch-link:hover { text-decoration: underline; color: #38bdf8; }
 
         .auth-bottom-note {
           font-size: 0.75rem;
-          color: var(--text-muted);
+          color: var(--text-dim);
           text-align: center;
+          opacity: 0.8;
         }
         .auth-legal-link {
-          color: var(--accent-blue);
+          color: var(--text-muted);
           font-weight: 600;
+          text-decoration: underline;
+          text-underline-offset: 2px;
         }
+        .auth-legal-link:hover { color: var(--text-main); }
 
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .auth-spin { animation: spin 0.9s linear infinite; }
